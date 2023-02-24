@@ -1,4 +1,4 @@
-module P217SumOfOdd exposing (..)
+module Practice.P217SumOfOdd exposing (..)
 
 import Html exposing (pre, text)
 import Html.Attributes exposing (style)

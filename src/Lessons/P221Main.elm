@@ -1,4 +1,4 @@
-module LabDisc217 exposing (..)
+module Practice.P221Main exposing (..)
 
 import Html exposing (pre, text)
 import Html.Attributes exposing (style)
@@ -8,7 +8,6 @@ add : Int -> Int -> Int
 add a b =
     a + b
     
-
 
 triangle n =
     let
@@ -21,7 +20,7 @@ triangle n =
                 if rowNum == 1 then
                     "o" ++ String.repeat(n-rowNum-1) "*" ++ "o"
                 else if rowNum == n then
-                    "o"
+                    "o  "
                 else
                     String.repeat (n-rowNum+1) "*"
         asterisks = List.map numToAsterisks nums
@@ -30,12 +29,6 @@ triangle n =
     in
     answer
 
---output formatting
--- output : String
---output = 
-    --triangle 1
-
 --main
 main =
-    pre [ style "padding" "10px" ] [text (triangle 100)]
-
+    pre [ style "padding" "10px" ] [text (triangle 50)]

@@ -1,4 +1,4 @@
-module BTFactorial exposing (..)
+module Practice.P217Factorial exposing (..)
 
 import Html exposing (pre, text)
 import Html.Attributes exposing (style)
