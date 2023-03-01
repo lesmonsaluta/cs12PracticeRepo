@@ -3,7 +3,10 @@ module LabOutputs.Lab01 exposing (..)
 import Html
 import Set
 import Array
-import Json.Decode exposing (int)    
+import Json.Decode exposing (int)  
+
+import Html exposing (pre, text)
+import Html.Attributes exposing (style)
 
 
 -- tally : String -> Dict String Int
@@ -54,27 +57,25 @@ relativelyPrime lower higher =
 hourglass : Int -> String
 hourglass rows =
     let
-        edge : Int -> String
-        edge rowNum =
-            if rowNum == 1 then
-                "o"
-            else if rowNum == (2 * rows - 1) then
-                "o"
+        nums = List.range 1 (2 * rows + 1)
+        intToCharRows : Int -> String
+        intToCharRows row =
+            if row == 1 || row == (2 * rows + 1) then
+                "o" ++ String.repeat (2 * rows - 1) "-" ++ "o"
+            else if row == rows+1 then
+                String.repeat rows " " ++ "x"
             else
-                "-"
+                if row < rows+1 then
+                String.repeat (row-1) " " ++ "\\" ++ String.repeat (2 * rows - 2 * row + 1) " " ++ "/"
+                else
+                String.repeat (2 * rows - row + 1) " " ++ "/" ++ String.repeat ((row - rows) * 2 - 3) "." ++ "\\"
         
+        textRows = List.map intToCharRows nums
+        answer = String.join "\n" textRows
         
-        range = List.range 1 rows
-    
     in
-    range
-    |> Debug.toString
+    answer
     
 
 main =
-    let
-        -- Change the text inside the parentheses with a call to your function
-        _ = Debug.log "" (hourglass 3)
-    in
-    -- Ignore the line below
-    Html.text ""
+    pre [ style "padding" "10px" ] [text (hourglass 4)]

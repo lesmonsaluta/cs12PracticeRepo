@@ -1,4 +1,4 @@
-module PracProbs.Prac6 exposing (..)
+module PracProbs.Template exposing (..)
 
 import Html
 import Set
@@ -6,9 +6,13 @@ import Array
 import Json.Decode exposing (int)
 import Bitwise exposing (shiftRightZfBy)
 
-reverse : String -> String
-reverse str =
-    String.reverse str
+-- Add your functions here (first line for type signature, succeeding lines for function declaration and body)
+vowelsToUpper: String -> String
+vowelsToUpper str = 
+    let 
+        charToUpper : 
+    in
+
 
 
 main =
