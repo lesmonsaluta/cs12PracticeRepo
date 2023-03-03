@@ -1,17 +1,49 @@
 module LabOutputs.Lab01 exposing (..)
 
 import Html
-import Set
+import Set exposing (..)
 import Array
+import Dict exposing (..)
 import Json.Decode exposing (int)  
 
 import Html exposing (pre, text)
 import Html.Attributes exposing (style)
 
 
--- tally : String -> Dict String Int
--- tally str =
-
+tally : String -> Dict String Int
+tally word = 
+    let
+        --main letters
+        letters = String.split "" word
+        
+        --getting letters that appeared at least once
+        filteredLetters = 
+            letters
+            |>Set.fromList
+            |>Set.toList
+        
+        countOfALetter : String -> Int
+        countOfALetter letter =
+            let
+                isSelectedLetter : String -> Bool
+                isSelectedLetter character =
+                    if letter == character then 
+                        True 
+                    else 
+                        False
+                    
+            
+            in
+            List.filter isSelectedLetter letters
+            |>List.length
+        pairs : String -> (String, Int)
+        pairs character =
+            (character, countOfALetter character)
+    in
+        List.map pairs filteredLetters
+        |> Dict.fromList
+    
+    
 
 
 
@@ -32,25 +64,16 @@ relativelyPrime lower higher =
                     
             in
             out
-            
-        --main code here
         combinedList = 
             Set.intersect (Set.fromList (listOfFactors lower)) (Set.fromList (listOfFactors higher))        
     in
-    -- higherListPrime
-    Set.isEmpty combinedList    
+    Set.isEmpty combinedList
     
--- nestedLoopIndexes : (Int, Int) -> (Int, Int) -> List (Int, Int)
--- nestedLoopIndexes (outerStart, outerEnd) (innerStart, innerEnd) =
---     let
---         makePair : Int -> Int -> (Int, Int)
---         makePair left right =
---             (left, right)
---         firstRange = List.range outerStart outerEnd
---         secondRange = List.range innerStart innerEnd
---     in
---     firstRange
---     |> List.map
+nestedLoopIndexes : (Int, Int) -> (Int, Int) -> List (Int, Int)
+nestedLoopIndexes (outerStart, outerEnd) (innerStart, innerEnd) =
+    List.range outerStart outerEnd
+    |> List.map (\i -> List.range innerStart innerEnd |> List.map (\k -> (i, k)))
+    |> List.concat
 
 
 
@@ -78,4 +101,12 @@ hourglass rows =
     
 
 main =
+    -- pre [ style "padding" "10px" ] [text (Debug.toString(tally "a !!1"))]
     pre [ style "padding" "10px" ] [text (hourglass 4)]
+    
+    -- let
+    --     -- Change the text inside the parentheses with a call to your function
+    --     _ = Debug.log "" (nestedLoopIndexes (1,5) (10,11))
+    -- in
+    -- -- Ignore the line below
+    -- Html.text ""
