@@ -1,219 +1,187 @@
-module Checkers.Lab03.Lab03 exposing (main)
+module Checkers.Lab03.Lab03 exposing (..)
 
 import Browser
-import Html exposing (Html, button, div, text)
+import Html exposing (..)
 import Html.Events exposing (onClick)
+import Html.Attributes exposing (..)
 
 
-type alias Data =
-    { marioChoice : Maybe Choice
-    , luigiChoice : Maybe Choice
-    , princessPeachChoice : Maybe Choice
-    , drawChoice : Maybe Choice
-    , marioScore : Int
-    , luigiScore : Int
-    , princessPeachScore : Int
-    , drawScore : Int
-    , round : Int
-    
+-- MVU
+-- Model: Data of app
+-- View: What the user sees
+-- Msg: User interaction
+-- Update: How the Model changes as a response to a Msg
+
+
+type alias Model =
+    { p1Choice : String
+    , p2Choice : String
+    , p3Choice : String
+    , p1Score : Int
+    , p2Score : Int
+    , p3Score : Int
+    , winner : Int
     }
-type Model
-    = Loading Data
-    | RoundResult Data Player
-    | Winner Player
 
 
-type Choice
-    = R
-    | P
-    | S
-
-type Player
-    = Mario
-    | Luigi
-    | PrincessPeach
-    | Draw
+init : Model
+init =
+    { p1Choice = ""
+    , p2Choice = ""
+    , p3Choice = ""
+    , p1Score = 0
+    , p2Score = 0
+    , p3Score = 0
+    , winner = 0
+    }
 
 
 type Msg
-    = MsgClick Player Choice
+    = MsgClick { player : Int, move : String }
     | MsgContinue
     | MsgReset
 
 
-init : Model
-init = Loading
-    { marioChoice = Nothing
-    , luigiChoice = Nothing
-    , princessPeachChoice = Nothing
-    , drawChoice = Nothing
-    , marioScore = 0
-    , luigiScore = 0
-    , princessPeachScore = 0
-    , drawScore = 0
-    , round = 1
-    }
-
-
 update : Msg -> Model -> Model
 update msg model =
-    case (msg, model) of
-        (MsgClick player choice, Loading data) ->
-            let
-                dataWithChoice =
-                    case player of
-                        Mario -> { data | marioChoice = Just choice}
-                        Luigi -> { data | luigiChoice = Just choice}
-                        PrincessPeach -> { data | princessPeachChoice = Just choice}
-                        Draw -> { data | drawChoice = Just choice}
-
-                getRoundWinner : Data -> Maybe Player
-                getRoundWinner current =
-                    case (current.marioChoice, current.luigiChoice, current.princessPeachChoice) of
-                        (Just a, Just b, Just c) ->
-                            getWinner a b c
-
-                        _ ->
-                            Nothing
-
-
-                getWinner : Choice -> Choice -> Choice -> Maybe Player
-                getWinner a b c =
-                    case (a, b, c) of
-                        (R, S, S) -> Just Mario
-                        (S, P, P) -> Just Mario
-                        (P, R, R) -> Just Mario
-
-                        (R, P, R) -> Just Luigi
-                        (S, R, S) -> Just Luigi
-                        (P, S, P) -> Just Luigi
-
-                        (S, S, R) -> Just PrincessPeach
-                        (P, P, S) -> Just PrincessPeach
-                        (R, R, P) -> Just PrincessPeach
-
-                        _ -> Just Draw
-
-
-                updateScore : Data -> Data
-                updateScore current =
-                    case getRoundWinner dataWithChoice of
-                        Just winner ->
-                            case winner of
-                                Mario -> { current | marioScore = current.marioScore + 1, round = current.round + 1 }
-                                Luigi -> { current | luigiScore = current.luigiScore + 1, round = current.round + 1 }
-                                PrincessPeach -> { current | princessPeachScore = current.princessPeachScore + 1, round = current.round + 1 }
-                                Draw -> { current | round = current.round + 1 }
-                        
-                        Nothing -> current
-
-                dataUpdated =
-                    updateScore dataWithChoice
-            in
-            case getRoundWinner dataWithChoice of
-                Just winner ->
-                    if dataUpdated.marioScore == 5 then
-                        Winner Mario
-                        
-                    else if dataUpdated.luigiScore == 5 then
-                        Winner Luigi
-                        
-                     else if dataUpdated.princessPeachScore == 5 then
-                        Winner PrincessPeach
-                        
-                    else
-                  
-                        RoundResult dataUpdated winner
-
-                Nothing ->
-                    Loading dataWithChoice
-
-        (MsgContinue, RoundResult data winner) ->
-            (Loading 
-                {data | marioChoice = Nothing, luigiChoice = Nothing, princessPeachChoice = Nothing})
+    let
+        updateScoreOfWinner : Model -> Model
+        updateScoreOfWinner current =
+            if current.p1Choice /= "" && current.p2Choice /= "" && current.p3Choice /= "" then
+                -- We have a winner
+                if current.p1Choice == "rock" && current.p2Choice == "scissors" && current.p3Choice == "scissors" then
+                    { current | p1Score = current.p1Score+1, winner = 1}
+                else if current.p1Choice == "paper" && current.p2Choice == "rock" && current.p3Choice == "rock" then
+                    { current | p1Score = current.p1Score+1, winner = 1}
+                else if current.p1Choice == "scissors" && current.p2Choice == "paper" && current.p3Choice == "paper" then
+                    { current | p1Score = current.p1Score+1, winner = 1}
+                else if current.p2Choice == "rock" && current.p1Choice == "scissors" && current.p3Choice == "scissors" then
+                    { current | p2Score = current.p2Score+1
+                    , winner = 2}
+                else if current.p2Choice == "paper" && current.p1Choice == "rock" && current.p3Choice == "rock" then
+                    { current | p2Score = current.p2Score+1
+                    , winner = 2}
+                else if current.p2Choice == "scissors" && current.p1Choice == "paper" && current.p3Choice == "paper" then
+                    { current | p2Score = current.p2Score+1
+                    , winner = 2}
+                else if current.p3Choice == "rock" && current.p1Choice == "scissors" && current.p2Choice == "scissors" then
+                    { current | p3Score = current.p3Score+1
+                    , winner = 3}
+                else if current.p3Choice == "paper" && current.p1Choice == "rock" && current.p2Choice == "rock" then
+                    { current | p3Score = current.p3Score+1
+                    , winner = 3}
+                else if current.p3Choice == "scissors" && current.p1Choice == "paper" && current.p2Choice == "paper" then
+                    { current | p3Score = current.p3Score+1
+                    , winner = 3}
+                else
+                    current
+            else
+                -- Still waiting for choice/s
+                current
+    in
+    case msg of
+        MsgClick { player, move } ->
+            case player of
+                1 -> 
+                    { model | p1Choice = move }
+                    |> updateScoreOfWinner
+                2 -> 
+                    { model | p2Choice = move }
+                    |> updateScoreOfWinner
+                3 -> 
+                    { model | p3Choice = move }
+                    |> updateScoreOfWinner
                     
+                _ -> model
 
-        (MsgReset, _) ->
+                
+        MsgContinue ->
+            { model | p1Choice = "", p2Choice = "" , p3Choice = "", winner = 0}
+            
+        MsgReset ->
             init
-        
-        _ ->
-            model
 
---QQ 
+
 view : Model -> Html Msg
 view model =
     let
-        playerToStr : Player -> String
-        playerToStr player =
-            case player of
-                Mario -> "Player 1"
-                Luigi -> "Player 2"
-                PrincessPeach -> "Player 3"
-                Draw -> "Draw"
+        p1Elems =
+            if model.p1Choice /= "" then
+                [ text " is done" ]
+            else
+                [ button [onClick (MsgClick { player = 1, move = "rock" }), id("player1-rock")] [text "Rock"]
+                , button [onClick (MsgClick { player = 1, move = "paper" }), id("player1-paper")] [text "Paper"]  
+                , button [onClick (MsgClick { player = 1, move = "scissors" }), id("player1-scissors")] [text "Scissors"]  
+                ]
+            
+        p2Elems =
+            if model.p2Choice /= "" then
+                [ text " is done" ]
+            else
+                [ button [onClick (MsgClick { player = 2, move = "rock" }), id("player2-rock")] [text "Rock"]
+                , button [onClick (MsgClick { player = 2, move = "paper" }), id("player2-paper")] [text "Paper"]  
+                , button [onClick (MsgClick { player = 2, move = "scissors" }), id("player2-scissors")] [text "Scissors"]  
+                ]
+              
+        p3Elems =
+            if model.p3Choice /= "" then
+                [ text " is done" ]
+            else
+                [ button [onClick (MsgClick { player = 3, move = "rock" }), id("player3-rock")] [text "Rock"]
+                , button [onClick (MsgClick { player = 3, move = "paper" }), id("player3-paper")] [text "Paper"]  
+                , button [onClick (MsgClick { player = 3, move = "scissors" }), id("player3-scissors")] [text "Scissors"]  
+                ]
+            
+        children =
+            [ div [] [text <| ("Player 1: ")
+                    , span [id("player1-score")] [text <| String.fromInt model.p1Score] 
+                    , div [] p1Elems]
+            , div [] [text <| ("Player 2: ")
+                    , span [id("player2-score")] [text <| String.fromInt model.p2Score] 
+                    , div [] p2Elems]
+            , div [] [text <| ("Player 3: ")
+                    , span [id("player3-score")] [text <| String.fromInt model.p3Score]  
+                    , div [] p3Elems]
+            ]
+            
+        winnerStatus = 
+            if model.winner == 0 then
+                "Draw"
+            else
+                "Player " ++ (String.fromInt <| model.winner)
 
-        makePlayerHtml : Player -> Data -> Html Msg
-        makePlayerHtml player data =
-            let
-                playerScore =
-                    case player of
-                        Mario -> data.marioScore |> String.fromInt
-                        Luigi -> data.luigiScore |> String.fromInt
-                        PrincessPeach -> data.princessPeachScore |> String.fromInt
-                        Draw -> data.drawScore |> String.fromInt
-
-                choice =
-                    case player of
-                        Mario -> data.marioChoice
-                        Luigi -> data.luigiChoice
-                        PrincessPeach -> data.princessPeachChoice
-                        Draw -> data.drawChoice
-            in
-            case choice of
-                Just _ ->
-                    div []
-                        [ text <| playerToStr player
-                        , text <| " (" ++ playerScore ++ ") is done"
-                        ]
-
-                Nothing ->
-                    div []
-                        [ text <| playerToStr player
-                        , text <| " (" ++ playerScore ++ ") "
-                        , button [onClick (MsgClick player R)] [text "R"]
-                        , button [onClick (MsgClick player P)] [text "P"]
-                        , button [onClick (MsgClick player S)] [text "S"]
-                        ]
     in
-    case model of
-        Loading data ->
-            div []
-                [ text ("Round " ++ (data.round |> String.fromInt))
-                , makePlayerHtml Mario data
-                , makePlayerHtml Luigi data
-                , makePlayerHtml PrincessPeach data
-                ]
+    if model.p1Score == 5 then
+        div []
+            [ span [id("overall-winner")] [text ("Player 1")]
+            , button [onClick MsgReset, id("restart")] [ text "Reset" ]
+            ]
+    else if model.p2Score == 5 then
+        div []
+            [ span [id("overall-winner")] [text ("Player 2")]
+            , button [onClick MsgReset, id("restart")] [ text "Reset" ]
+            ]
+    else if model.p3Score == 5 then
+        div []
+            [ span [id("overall-winner")] [text ("Player 3")]
+            , button [onClick MsgReset, id("restart")] [ text "Reset" ]
+            ]
+    else if model.p1Choice /= "" && model.p2Choice /= "" && model.p3Choice /= ""then
+        -- Show results
+        div []
+            [ div [] [span [id("result")] [text (winnerStatus)]]
+            , div [] [span [id("player1-move")] [text (model.p1Choice)]]
+            , div [] [span [id("player2-move")] [text (model.p2Choice)]]
+            , div [] [span [id("player3-move")] [text (model.p3Choice)]]
+            , button [onClick MsgContinue, id("continue")] [text "Continue"]
+            ]
+    else
+        -- Show screen with buttons
+        div [] children
 
-        RoundResult data winner ->
-            let
-                resultHeader =
-                    if winner == Draw then
-                        text <| playerToStr winner
-                    else
-                        text <| playerToStr winner ++ " wins"
-            in
-            div []
-                [ div [] [resultHeader]
-                , div [] [text <| "Player 1: " ++ (data.marioChoice |> Maybe.withDefault R |> Debug.toString)]
-                , div [] [text <| "Player 2: " ++ (data.luigiChoice |> Maybe.withDefault R |> Debug.toString)]
-                , div [] [text <| "Player 3: " ++ (data.princessPeachChoice |> Maybe.withDefault R |> Debug.toString)]
-                , button [onClick MsgContinue] [text "Continue"]
-                ]
 
-        Winner winner ->
-            div []
-                [ text <| playerToStr winner ++ " wins"
-                , button [onClick MsgReset] [text "Reset"]
-                ]
+
+
 
 
 main =
@@ -222,4 +190,3 @@ main =
         , view = view
         , update = update
         }
-

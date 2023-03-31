@@ -65,10 +65,10 @@ unpairAtMost range lst =
             let
                 (answer, idx) = acc
             in
-            if idx == range then
-                (answer, idx)
-            else
+            if idx < range then
                 (answer ++ [x,y], idx+1)
+            else
+                (answer, idx)
 
         -- extract answer
         -- reducer, initial answer, list to fold on
@@ -77,7 +77,7 @@ unpairAtMost range lst =
     in
     final
     
-    pairAtMost : Int -> List a -> List (a,a)
+pairAtMost : Int -> List a -> List (a,a)
 pairAtMost range lst =
     let
         -- define reducer (Element -> Acc -> Updated Acc (ans, index))
@@ -86,14 +86,15 @@ pairAtMost range lst =
             let
                 (answer, idx, prev) = acc
             in
-            if idx == range then
-                (answer, idx, Nothing)
-            else
+            if idx < range then
                 case prev of
-                    Just x ->
-                        (answer ++ [(x, elem)], idx+1, Nothing)
-                    Nothing ->
-                        (answer, idx, Just elem)
+                        Just x ->
+                            (answer ++ [(x, elem)], idx+1, Nothing)
+                        Nothing ->
+                            (answer, idx, Just elem)
+                
+            else
+                (answer, idx, Nothing)
                     
 
         -- extract answer
@@ -103,14 +104,64 @@ pairAtMost range lst =
     in
     final
 
+nestedLoop : (a -> b -> c) -> List a -> List b -> List c
+nestedLoop func outerList innerList =
+    let 
+        outerReducer : a -> List c -> List c
+        outerReducer outerElem outerAcc =
+            let
+                innerReducer : b -> List c -> List c
+                innerReducer innerElem innerAcc =
+                    [func outerElem innerElem] ++ innerAcc
+            in
+            List.foldr innerReducer [] innerList ++ outerAcc -- concatenate innerAcc with outerAcc
+    in
+    List.foldr outerReducer [] outerList
+
 
     
-
+    
+    
+    
 main =
-    -- pre [ style "padding" "10px" ] [text <| Debug.toString <| (dropNothings [Just 1])]
-    -- pre [ style "padding" "10px" ] [text <| Debug.toString <| (isArithmeticSequence 1 [2,1,0,-1,-2])]
-    xpre [ style "padding" "10px" ] [text <| Debug.toString <| (unpairAtMost 1 [(10,20),(30,40),(50,60)])]
-    -- pre [ style "padding" "10px" ] [text <| Debug.toString <| (pairAtMost 2 [10,20,30,40,50,60])]
+    let
+        -- Change the text inside the parentheses with a call to your function
+        _ = Debug.log "dropNothings" (dropNothings [])
+        _ = Debug.log "dropNothings" (dropNothings [Nothing])
+        _ = Debug.log "dropNothings" (dropNothings [Just 1])
+        _ = Debug.log "dropNothings" (dropNothings [Nothing, Just 5, Nothing, Just 4, Nothing])
+        _ = Debug.log "isArithmeticSequence" (isArithmeticSequence 3 [])
+        _ = Debug.log "isArithmeticSequence" (isArithmeticSequence 1 [1,2,3,4,5])
+        _ = Debug.log "isArithmeticSequence" (isArithmeticSequence 2 [1,2,3,4,5])
+        _ = Debug.log "isArithmeticSequence" (isArithmeticSequence -1 [2,1,0,-1,-2])
+        _ = Debug.log "isArithmeticSequence" (isArithmeticSequence 1 [2,1,0,-1,-2])
+        _ = Debug.log "unpairAtMost" (unpairAtMost 0 [])
+        _ = Debug.log "unpairAtMost" (unpairAtMost 5 [])
+        _ = Debug.log "unpairAtMost" (unpairAtMost -1 [])
+        _ = Debug.log "unpairAtMost" (unpairAtMost 2 [(10,20),(30,40)])
+        _ = Debug.log "unpairAtMost" (unpairAtMost 2 [(10,20),(30,40),(50,60)])
+        _ = Debug.log "unpairAtMost" (unpairAtMost 4 [(10,20),(30,40),(50,60)])
+        _ = Debug.log "unpairAtMost" (unpairAtMost -1 [(10,20),(30,40),(50,60)])
+        _ = Debug.log "pairAtMost" (pairAtMost 2 [])
+        _ = Debug.log "pairAtMost" (pairAtMost 0 [10,20,30,40])
+        _ = Debug.log "pairAtMost" (pairAtMost -1 [10,20,30,40])
+        _ = Debug.log "pairAtMost" (pairAtMost 2 [10,20,30,40])
+        _ = Debug.log "pairAtMost" (pairAtMost 1 [10,20,30,40])
+        _ = Debug.log "pairAtMost" (pairAtMost 2 [10,20,30])
+        _ = Debug.log "nestedLoop" (nestedLoop Tuple.pair [] [])
+        _ = Debug.log "nestedLoop" (nestedLoop Tuple.pair [1,2,3] [])
+        _ = Debug.log "nestedLoop" (nestedLoop Tuple.pair [] [1,2,3])
+        _ = Debug.log "nestedLoop" (nestedLoop Tuple.pair [1] [1])
+        _ = Debug.log "nestedLoop" (nestedLoop Tuple.pair [1,2] [10])
+        _ = Debug.log "nestedLoop" (nestedLoop Tuple.pair [10] [1,2])
+        _ = Debug.log "nestedLoop" (nestedLoop Tuple.pair [1,2] [10,20])
+        _ = Debug.log "nestedLoop" (nestedLoop Tuple.pair [1,2] ["a","b"])
+        _ = Debug.log "nestedLoop" (nestedLoop Tuple.pair [1,2] [10,20,30])
+        _ = Debug.log "nestedLoop" (nestedLoop (\x y -> x + y) [1,2] [10,20,30])
+        _ = Debug.log "nestedLoop   " (nestedLoop (\x y -> x ++ y) ["a","b"] ["1","2","3"])
+    in
+    -- Ignore the line below
+    Html.text ""
 
         
         
